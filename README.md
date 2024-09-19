@@ -2,7 +2,7 @@
 
 Implement a CLI tool that finds top 5 matched words from a given text file, using the American Soundex algorithm to match the words.
 
-## American Soundex algorithm steps (from [Soundex - Wikipedia][https://en.wikipedia.org/wiki/Soundex])
+## American Soundex algorithm steps (from [Soundex - Wikipedia](https://en.wikipedia.org/wiki/Soundex))
 
 1. Retain the first letter of the name and drop all other occurrences of a, e, i, o, u, y, h, w.
 
