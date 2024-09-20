@@ -48,3 +48,12 @@ def preprocess_df(df):
     df["letter_encoded"] = df["letter"].apply(lambda x: ord(x) if x else 0)
 
     return df
+
+
+def clustering(df, input_code):
+    X = df[["letter_encoded", "numbers"]]
+
+    kmeans = KMeans(n_clusters=5, random_state=42)
+    kmeans.fit(X)
+
+    return
