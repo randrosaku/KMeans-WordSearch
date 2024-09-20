@@ -50,6 +50,18 @@ def preprocess_df(df):
     return df
 
 
+def distance(input_encoded, cluster_codes_encoded):
+    input_letter, input_numbers = input_encoded[0], input_encoded[1]
+
+    cluster_letters = cluster_codes_encoded[:, 0]
+    cluster_numbers = cluster_codes_encoded[:, 1]
+
+    letter_distances = np.abs(cluster_letters - input_letter)
+    number_distances = np.abs(cluster_numbers - input_numbers)
+
+    return letter_distances * 10 + number_distances
+
+
 def clustering(df, input_code):
     X = df[["letter_encoded", "numbers"]]
 
