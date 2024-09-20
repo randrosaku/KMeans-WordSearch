@@ -62,10 +62,29 @@ def distance(input_encoded, cluster_codes_encoded):
     return letter_distances * 10 + number_distances
 
 
+def search(input, kmeans, df, num_closest=5):
+    input_letter, input_numbers = extract_letters_and_numbers(input)
+    input_letter_encoded = ord(input_letter) if input_letter else 0
+
+    input_encoded = np.array([[input_letter_encoded, input_numbers]])
+
+    predicted_cluster = kmeans.predict(input_encoded)[0]
+
+    cluster = df[df["cluster"] == predicted_cluster]
+    cluster_codes_encoded = cluster[["letter_encoded", "numbers"]].values
+
+    distances = distance(input_encoded[0], cluster_codes_encoded)
+    closest_indices = np.argsort(distances)[:num_closest]
+
+    return cluster.iloc[closest_indices]
+
+
 def clustering(df, input_code):
     X = df[["letter_encoded", "numbers"]]
 
     kmeans = KMeans(n_clusters=5, random_state=42)
     kmeans.fit(X)
 
-    return
+    closest_codes = search(input_code, kmeans, df)
+
+    return closest_codes
