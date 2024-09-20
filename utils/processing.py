@@ -1,5 +1,7 @@
 import re
 import pandas as pd
+import numpy as np
+from sklearn.cluster import KMeans
 
 from utils.soundex import Soundex
 
@@ -33,5 +35,16 @@ def create_df(content: list, algorithm: Soundex) -> pd.DataFrame:
             words.append(algorithm.word)
 
     df = pd.DataFrame(list(zip(codes, words)), columns=["code", "word"])
+
+    return df
+
+
+def extract_letters_and_numbers(text):
+    return text[0], int(text[1:])
+
+
+def preprocess_df(df):
+    df["letter"], df["numbers"] = zip(*df["code"].apply(extract_letters_and_numbers))
+    df["letter_encoded"] = df["letter"].apply(lambda x: ord(x) if x else 0)
 
     return df
