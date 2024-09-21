@@ -50,6 +50,25 @@ def preprocess_df(df):
     return df
 
 
+def adaptive_k(X, df, initial_k=5, min_cluster_size=5, min_k=2):
+    k = initial_k
+
+    while k >= min_k:
+        kmeans = KMeans(n_clusters=k, random_state=42)
+        kmeans.fit(X)
+
+        labels, counts = np.unique(kmeans.labels_, return_counts=True)
+
+        if all(count >= min_cluster_size for count in counts):
+            df["cluster"] = kmeans.labels_
+            return kmeans
+
+        k -= 1
+
+    df["cluster"] = kmeans.labels_
+    return kmeans
+
+
 def distance(input_encoded, cluster_codes_encoded):
     input_letter, input_numbers = input_encoded[0], input_encoded[1]
 
@@ -62,7 +81,7 @@ def distance(input_encoded, cluster_codes_encoded):
     return letter_distances * 10 + number_distances
 
 
-def search(input, kmeans, df, num_closest=5):
+def find_similar(input, kmeans, df, num_closest=5):
     input_letter, input_numbers = extract_letters_and_numbers(input)
     input_letter_encoded = ord(input_letter) if input_letter else 0
 
@@ -81,10 +100,8 @@ def search(input, kmeans, df, num_closest=5):
 
 def clustering(df, input_code):
     X = df[["letter_encoded", "numbers"]]
+    kmeans = adaptive_k(X, df)
 
-    kmeans = KMeans(n_clusters=5, random_state=42)
-    kmeans.fit(X)
-
-    closest_codes = search(input_code, kmeans, df)
+    closest_codes = find_similar(input_code, kmeans, df)
 
     return closest_codes
