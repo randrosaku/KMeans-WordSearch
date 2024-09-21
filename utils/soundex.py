@@ -30,12 +30,32 @@ alphabet = "qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM"
 
 
 class Soundex:
+    """This class implements the American Soundex algorithm for encoding words."""
 
     def __init__(self, tbl: dict = tbl):
+        """
+        Initializes a Soundex object with a translation table and an optional word.
+
+        Parameters:
+            tbl (dict): A dictionary mapping characters to their corresponding Soundex codes.
+
+        Returns:
+            None
+        """
         self.tbl = tbl
         self.word = None
 
     def encode(self, input_word: str, tbl: dict = tbl) -> str:
+        """
+        Encodes a given word using the Soundex algorithm.
+
+        Parameters:
+            input_word (str): The word to encode.
+            tbl (dict, optional): A dictionary mapping characters to their corresponding Soundex codes. Defaults to the predefined tbl.
+
+        Returns:
+            str: The encoded word, or None if the input_word is empty.
+        """
         self.word = "".join([char for char in input_word if char in alphabet])
 
         if not self.word:
