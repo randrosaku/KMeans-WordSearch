@@ -26,6 +26,7 @@ tbl = str.maketrans(
     }
 )
 
+# Define the alphabet, including lowercase and uppercase letters, for filtering valid characters
 alphabet = "qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM"
 
 
@@ -56,18 +57,23 @@ class Soundex:
         Returns:
             str: The encoded word, or None if the input_word is empty.
         """
+        # Filter out any characters from the input_word that are not part of the alphabet
         self.word = "".join([char for char in input_word if char in alphabet])
 
         if not self.word:
             return None
 
+        # Retain the first letter (in uppercase) for the Soundex code
         first_letter = self.word[0].upper()
+
+        # Convert the rest of the word to its Soundex encoded form using the translation table
         translation = self.word.lower().translate(tbl)
 
         result_seq = []
         for i in range(1, len(translation)):
             if i == 1 and translation[i] == first_letter.lower().translate(tbl):
                 continue
+            # Handle 'y', 'h', 'w' as per Soundex rules
             elif translation[i] in "yhw":
                 if i == len(self.word) - 1:
                     continue
@@ -77,6 +83,8 @@ class Soundex:
                 if not result_seq or translation[i] != result_seq[-1]:
                     result_seq.append(translation[i])
 
-        result = "".join(result_seq).replace("0", "")
+        # Remove all '0' values (which represent ignored letters) and pad/truncate the result to 3 digits
+        numeric_part = "".join(result_seq).replace("0", "")
+        soundex_code = first_letter + (numeric_part + "000")[:3]
 
-        return first_letter + (result + "000")[:3]
+        return soundex_code

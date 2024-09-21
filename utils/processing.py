@@ -58,8 +58,8 @@ def create_df(content: list, algorithm: Soundex) -> pd.DataFrame:
     for word in content:
         code = algorithm.encode(word)
         if code:
+            words.append(algorithm.word)  # Capture the original word before encoding
             codes.append(code)
-            words.append(algorithm.word)
 
     df = pd.DataFrame(list(zip(codes, words)), columns=["code", "word"])
 
@@ -90,7 +90,9 @@ def preprocess_df(df: pd.DataFrame) -> pd.DataFrame:
         pd.DataFrame: The preprocessed DataFrame.
     """
     df["letter"], df["numbers"] = zip(*df["code"].apply(extract_letters_and_numbers))
-    df["letter_encoded"] = df["letter"].apply(lambda x: ord(x) if x else 0)
+    df["letter_encoded"] = df["letter"].apply(
+        lambda x: ord(x) if x else 0
+    )  # Convert letters to ASCII values
 
     return df
 
@@ -123,11 +125,12 @@ def adaptive_k(
 
         labels, counts = np.unique(kmeans.labels_, return_counts=True)
 
+        # Check if all clusters meet the minimum size requirement
         if all(count >= min_cluster_size for count in counts):
             df["cluster"] = kmeans.labels_
             return kmeans
 
-        k -= 1
+        k -= 1  # Reduce the number of clusters if the minimum size is not met
 
     df["cluster"] = kmeans.labels_
     return kmeans
@@ -154,6 +157,7 @@ def distance(
     letter_distances = np.abs(cluster_letters - input_letter)
     number_distances = np.abs(cluster_numbers - input_numbers)
 
+    # Letter distances are given higher weight to prioritize phonetic similarity
     return letter_distances * 10 + number_distances
 
 
@@ -173,17 +177,25 @@ def find_similar(
         pd.DataFrame: The top `num_closest` similar words from the DataFrame.
     """
     input_letter, input_numbers = extract_letters_and_numbers(input)
-    input_letter_encoded = ord(input_letter) if input_letter else 0
+    input_letter_encoded = (
+        ord(input_letter) if input_letter else 0
+    )  # Encode input word into ASCII
 
     input_encoded = np.array([[input_letter_encoded, input_numbers]])
 
-    predicted_cluster = kmeans.predict(input_encoded)[0]
+    predicted_cluster = kmeans.predict(input_encoded)[
+        0
+    ]  # Find the cluster the input belongs to
 
     cluster = df[df["cluster"] == predicted_cluster]
     cluster_codes_encoded = cluster[["letter_encoded", "numbers"]].values
 
-    distances = distance(input_encoded[0], cluster_codes_encoded)
-    closest_indices = np.argsort(distances)[:num_closest]
+    distances = distance(
+        input_encoded[0], cluster_codes_encoded
+    )  # Compute distances from input to cluster codes
+    closest_indices = np.argsort(distances)[
+        :num_closest
+    ]  # Sort by closest distances and get top matches
 
     return cluster.iloc[closest_indices]
 
@@ -202,6 +214,7 @@ def clustering(df: pd.DataFrame, input_code: str) -> list:
     X = df[["letter_encoded", "numbers"]]
     kmeans = adaptive_k(X, df)
 
-    closest_codes = find_similar(input_code, kmeans, df)
+    # Find the closest matches to the input Soundex code in the clustered data
+    top_matches = find_similar(input_code, kmeans, df)
 
-    return closest_codes["word"]
+    return top_matches["word"]
