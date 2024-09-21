@@ -1,0 +1,12 @@
+name: oxylabs
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - pandas
+  - pydantic
+  - pip
+  - pip:
+    - scikit-learn
+    - argparse
+    - numpy
