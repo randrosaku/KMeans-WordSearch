@@ -23,13 +23,13 @@ conda activate oxylabs
 ### 4. Run the CLI Tool
 You can now run the tool to find the top matches from a text file based on the Soundex algorithm. Use the following command:
 ```
-./find.py file_path word_to_match
+python ./find.py file_path word_to_match
 ```
 Replace `file_path` with the path to your text file and `word_to_match` with the word you're searching for.
 
 **Example**
 ```
-./find.py wiki_lt.txt lithuania
+python ./find.py wiki_lt.txt lithuania
 ```
 This command will search for the top 5 phonetic matches to the word "lithuania" in the wiki_lt.txt file, based on American Soundex algorithm.
 
