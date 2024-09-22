@@ -15,7 +15,7 @@ codes = ["G200", "O256", "A261", "T522", "P236", "H555", "T221"]
 
 class TestSoundex(unittest.TestCase):
 
-    def set_up(self):
+    def setUp(self):
         self.soundex = Soundex()
 
     def test_encode_basic_word(self):
