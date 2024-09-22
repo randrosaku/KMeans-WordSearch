@@ -6,6 +6,7 @@ dependencies:
   - pandas
   - pydantic
   - pip
+  - pytest
   - pip:
     - scikit-learn
     - argparse

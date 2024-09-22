@@ -2,28 +2,12 @@ import re
 import pandas as pd
 import numpy as np
 from sklearn.cluster import KMeans
+from typing import Generator
 
 from utils.soundex import Soundex
 
 
-def read_file(file: str) -> str:
-    """
-    Reads the contents of a file and returns it as a string.
-
-    Parameters:
-        file (str): The path to the file to be read.
-
-    Returns:
-        str: The contents of the file.
-    """
-    file = open(file, "r", encoding="utf-8")
-    content = file.read()
-    file.close()
-
-    return content
-
-
-def process_file(file: str) -> list:
+def process_file(file: str) -> Generator[str, None, None]:
     """
     Processes a given file by reading its contents, cleaning the text, and extracting individual words.
 
@@ -31,25 +15,26 @@ def process_file(file: str) -> list:
         file (str): The path to the file to be processed.
 
     Returns:
-        list: A list of words extracted from the file.
+        Generator[str, None, None]: A generator yielding individual words extracted from the file.
     """
-    content = read_file(file)
+    with open(file, "r", encoding="utf-8") as f:
+        for line in f:
+            words = re.findall(r"\b\w+\b", line)
+            for word in words:
+                yield word
 
-    clean_content = content.replace("\n", " ")
-    words = re.findall(r"\b\w+\b", clean_content)
 
-    return words
-
-
-def create_df(content: list, algorithm: Soundex) -> pd.DataFrame:
+def create_df(
+    content: Generator[str, None, None], algorithm: Soundex
+) -> Generator[pd.DataFrame, None, None]:
     """
-    Creates a DataFrame from a list of words and their corresponding Soundex codes.
+    Creates a DataFrame from a generator of words and their corresponding Soundex codes.
 
     Parameters:
-        content (list): A list of words to be encoded.
+        content (Generator[str, None, None]): A generator yielding individual words to be encoded.
         algorithm (Soundex): An instance of the Soundex class.
 
-    Returns:
+    Yields:
         pd.DataFrame: A DataFrame containing the encoded words and their corresponding Soundex codes.
     """
     codes = []
@@ -58,12 +43,16 @@ def create_df(content: list, algorithm: Soundex) -> pd.DataFrame:
     for word in content:
         code = algorithm.encode(word)
         if code:
-            words.append(algorithm.word)  # Capture the original word before encoding
-            codes.append(code)
+            codes.append(code)  # Capture the original word before encoding
+            words.append(word)
 
-    df = pd.DataFrame(list(zip(codes, words)), columns=["code", "word"])
+        if len(codes) > 1000:
+            yield pd.DataFrame(list(zip(codes, words)), columns=["code", "word"])
+            codes = []
+            words = []
 
-    return df
+    if codes:
+        yield pd.DataFrame(list(zip(codes, words)), columns=["code", "word"])
 
 
 def extract_letters_and_numbers(text: str) -> tuple:
@@ -120,7 +109,7 @@ def adaptive_k(
     k = initial_k
 
     while k >= min_k:
-        kmeans = KMeans(n_clusters=k, random_state=42)
+        kmeans = KMeans(n_clusters=k, n_init=10, random_state=42)
         kmeans.fit(X)
 
         labels, counts = np.unique(kmeans.labels_, return_counts=True)
@@ -147,7 +136,7 @@ def distance(
         cluster_codes_encoded (np.ndarray): The encoded values of the cluster codes.
 
     Returns:
-        np.ndarray: The calculated distance between the input encoded value and the cluster codes encoded values, preferring letters.
+        np.ndarray: The calculated distance between the input encoded value and the cluster codes encoded values.
     """
     input_letter, input_numbers = input_encoded[0], input_encoded[1]
 
@@ -193,9 +182,10 @@ def find_similar(
     distances = distance(
         input_encoded[0], cluster_codes_encoded
     )  # Compute distances from input to cluster codes
+
     closest_indices = np.argsort(distances)[
         :num_closest
-    ]  # Sort by closest distances and get top matches
+    ]  # Sort by closest distances to get top matches
 
     return cluster.iloc[closest_indices]
 
@@ -217,4 +207,4 @@ def clustering(df: pd.DataFrame, input_code: str) -> list:
     # Find the closest matches to the input Soundex code in the clustered data
     top_matches = find_similar(input_code, kmeans, df)
 
-    return top_matches["word"]
+    return top_matches["word"].tolist()
