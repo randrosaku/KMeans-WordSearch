@@ -16,7 +16,7 @@ class TestIntegration(unittest.TestCase):
         with open("integration_test.txt", "w") as f:
             f.write(content)
 
-        # Process the file
+        # Read and process text file
         processed_words = process_file("integration_test.txt")
 
         # Create and process DataFrame
@@ -24,14 +24,14 @@ class TestIntegration(unittest.TestCase):
         df = pd.concat(df_chunks, ignore_index=True)
         df_preprocessed = preprocess_df(df)
 
-        # Test Soundex encoding for a specific word
+        # Test Soundex encoding
         input_code = self.soundex.encode("lithuania")
 
-        # Perform clustering
+        # Perform KMeans clustering
         top_matches = clustering(df_preprocessed, input_code)
         top_matches_lower = [word.lower() for word in top_matches]
 
-        # Check that top matches contain expected words
+        # Check that top matches contain expected word
         self.assertIn("lithuania".lower(), top_matches_lower)
 
         if os.path.exists("integration_test.txt"):

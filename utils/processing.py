@@ -7,23 +7,6 @@ from typing import Generator
 from utils.soundex import Soundex
 
 
-def read_file(file: str) -> str:
-    """
-    Reads the contents of a file and returns it as a string.
-
-    Parameters:
-        file (str): The path to the file to be read.
-
-    Returns:
-        str: The contents of the file.
-    """
-    file = open(file, "r", encoding="utf-8")
-    content = file.read()
-    file.close()
-
-    return content
-
-
 def process_file(file: str) -> Generator[str, None, None]:
     """
     Processes a given file by reading its contents, cleaning the text, and extracting individual words.
@@ -153,7 +136,7 @@ def distance(
         cluster_codes_encoded (np.ndarray): The encoded values of the cluster codes.
 
     Returns:
-        np.ndarray: The calculated distance between the input encoded value and the cluster codes encoded values, preferring letters.
+        np.ndarray: The calculated distance between the input encoded value and the cluster codes encoded values.
     """
     input_letter, input_numbers = input_encoded[0], input_encoded[1]
 
@@ -199,9 +182,10 @@ def find_similar(
     distances = distance(
         input_encoded[0], cluster_codes_encoded
     )  # Compute distances from input to cluster codes
+
     closest_indices = np.argsort(distances)[
         :num_closest
-    ]  # Sort by closest distances and get top matches
+    ]  # Sort by closest distances to get top matches
 
     return cluster.iloc[closest_indices]
 

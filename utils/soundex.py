@@ -26,7 +26,7 @@ tbl = str.maketrans(
     }
 )
 
-# Define the alphabet, including lowercase and uppercase letters, for filtering valid characters
+# Define the alphabet for filtering valid characters
 alphabet = "qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM"
 
 
@@ -83,7 +83,7 @@ class Soundex:
                 if not result_seq or translation[i] != result_seq[-1]:
                     result_seq.append(translation[i])
 
-        # Remove all '0' values (which represent ignored letters) and pad/truncate the result to 3 digits
+        # Remove all '0' values and pad/truncate the result to 3 digits
         numeric_part = "".join(result_seq).replace("0", "")
         soundex_code = first_letter + (numeric_part + "000")[:3]
 

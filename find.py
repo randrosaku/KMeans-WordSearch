@@ -32,12 +32,11 @@ def word_search():
         print(f"Input validation failed: {e}")
         return
 
-    # Process the content of the text file and extract words
+    # Read and process text file
     content = process_file(validated_input.file)
 
     # Create a DataFrame with words and their Soundex encodings
-    # df = create_df(content, algorithm)
-    df_chunks = list(create_df(content, algorithm))  # Gather all DataFrame chunks
+    df_chunks = list(create_df(content, algorithm))
     df = pd.concat(df_chunks, ignore_index=True)
 
     # Preprocess the DataFrame by encoding the letters and numbers (for clustering)
