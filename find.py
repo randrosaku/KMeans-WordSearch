@@ -10,6 +10,10 @@ from utils.soundex import Soundex
 from utils.processing import process_file, create_df, preprocess_df, clustering
 from models import InputModel
 
+import warnings
+
+warnings.filterwarnings("ignore")
+
 # Initialize the Soundex algorithm for encoding words
 algorithm = Soundex()
 
