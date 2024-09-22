@@ -17,11 +17,14 @@ def process_file(file: str) -> Generator[str, None, None]:
     Returns:
         Generator[str, None, None]: A generator yielding individual words extracted from the file.
     """
+    seen = set()
     with open(file, "r", encoding="utf-8") as f:
         for line in f:
-            words = re.findall(r"\b\w+\b", line)
+            words = (word for word in line.split() if word.isalpha())
             for word in words:
-                yield word
+                if word not in seen:
+                    seen.add(word)
+                    yield word
 
 
 def create_df(
