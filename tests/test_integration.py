@@ -20,7 +20,8 @@ class TestIntegration(unittest.TestCase):
         processed_words = process_file("integration_test.txt")
 
         # Create and process DataFrame
-        df = create_df(processed_words, self.soundex)
+        df_chunks = list(create_df(processed_words, self.soundex))
+        df = pd.concat(df_chunks, ignore_index=True)
         df_preprocessed = preprocess_df(df)
 
         # Test Soundex encoding for a specific word
@@ -28,7 +29,7 @@ class TestIntegration(unittest.TestCase):
 
         # Perform clustering
         top_matches = clustering(df_preprocessed, input_code)
-        top_matches_lower = [word.lower() for word in top_matches.values]
+        top_matches_lower = [word.lower() for word in top_matches]
 
         # Check that top matches contain expected words
         self.assertIn("lithuania".lower(), top_matches_lower)

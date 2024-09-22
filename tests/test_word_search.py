@@ -21,7 +21,7 @@ class TestWordSearchFunctional(unittest.TestCase):
         output = mock_stdout.getvalue()
 
         self.assertIn("Lithuania", output)
-        self.assertIn("country", output)
+        self.assertIn("beautiful", output)
 
         if os.path.exists("test.txt"):
             os.remove("test.txt")

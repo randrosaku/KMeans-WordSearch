@@ -19,7 +19,7 @@ class TestProcessing(unittest.TestCase):
         content = "Hello oxylabs! Welcome to testing."
         with open("test.txt", "w") as f:
             f.write(content)
-        result = process_file("test.txt")
+        result = list(process_file("test.txt"))
         self.assertEqual(result, ["Hello", "oxylabs", "Welcome", "to", "testing"])
 
         if os.path.exists("test.txt"):
@@ -31,10 +31,19 @@ class TestProcessing(unittest.TestCase):
 
         Verifies that the resulting DataFrame is an instance of pd.DataFrame and has the correct number of rows.
         """
-        words = ["Hello", "oxylabs", "testing"]
-        df = create_df(words, self.soundex)
+        content = "Hello oxylabs! Welcome to testing."
+        with open("test.txt", "w") as f:
+            f.write(content)
+
+        word_generator = process_file("test.txt")
+        df_chunks = list(create_df(word_generator, self.soundex))
+        df = pd.concat(df_chunks, ignore_index=True)
+
         self.assertTrue(isinstance(df, pd.DataFrame))
-        self.assertEqual(len(df), 3)  # Should have 3 rows
+        self.assertEqual(len(df), 5)
+
+        if os.path.exists("test.txt"):
+            os.remove("test.txt")
 
     def test_preprocess_df(self):
         """
@@ -42,10 +51,19 @@ class TestProcessing(unittest.TestCase):
         preprocessing the DataFrame, and asserting that the resulting DataFrame has a
         column named "letter_encoded".
         """
-        words = ["Hello", "oxylabs", "testing"]
-        df = create_df(words, self.soundex)
+        content = "Hello oxylabs! Welcome to testing."
+        with open("test.txt", "w") as f:
+            f.write(content)
+
+        word_generator = process_file("test.txt")
+        df_chunks = list(create_df(word_generator, self.soundex))
+        df = pd.concat(df_chunks, ignore_index=True)
         df_preprocessed = preprocess_df(df)
+
         self.assertIn("letter_encoded", df_preprocessed.columns)
+
+        if os.path.exists("test.txt"):
+            os.remove("test.txt")
 
 
 if __name__ == "__main__":
