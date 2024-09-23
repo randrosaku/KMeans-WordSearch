@@ -1,5 +1,6 @@
 import re
 import pandas as pd
+import string
 import numpy as np
 from sklearn.cluster import KMeans
 from typing import Generator
@@ -18,9 +19,12 @@ def process_file(file: str) -> Generator[str, None, None]:
         Generator[str, None, None]: A generator yielding individual words extracted from the file.
     """
     seen = set()
+    punctuation_re = re.compile(r"[^\w\s]")
+
     with open(file, "r", encoding="utf-8") as f:
         for line in f:
-            words = (word for word in line.split() if word.isalpha())
+            cleaned_line = punctuation_re.sub("", line)
+            words = (word for word in cleaned_line.split() if word.isalpha())
             for word in words:
                 if word not in seen:
                     seen.add(word)
